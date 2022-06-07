@@ -80,8 +80,12 @@ function onWindowResize() {
 
 }
 
+const countryName = document.querySelector('#country-name');
+
 function onMouseMove(event) {
     event.preventDefault();
+    countryName.style.setProperty('left', event.clientX + 'px')
+    countryName.style.setProperty('top', (event.clientY + 10) + 'px')
     mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
     mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
     raycaster.setFromCamera(mouse, camera);
@@ -90,17 +94,21 @@ function onMouseMove(event) {
         intersects.forEach(intersect => {
             selection = intersect.object
             if(countries.some(x => x.id === selection.uuid)){
+                if(countryName.hasAttribute('hidden'))
+                    countryName.removeAttribute('hidden');
                 let country = countries.find(x => x.id === selection.uuid);
-                document.querySelector('#country-name').textContent = country.name;
+                countryName.textContent = country.name;
             }
             else {
-                document.querySelector('#country-name').textContent = '';
+                if(!countryName.hasAttribute('hidden'))
+                    countryName.setAttribute('hidden', '');
+                countryName.textContent = '';
             }
         });
 
     } else {
         selection = null;
-        document.querySelector('#country-name').textContent = '';
+        countryName.textContent = '';
     }
 }
 
