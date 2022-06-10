@@ -144,3 +144,7 @@ export function clearModels(){
         scene.remove(i);
     }
 }
+
+export function getElement(){
+    return renderer.domElement;
+}
