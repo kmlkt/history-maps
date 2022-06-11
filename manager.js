@@ -1,6 +1,6 @@
 import {init, addModel, clearModels, getElement} from "./three-renderer.js";
 
-let is3D, eventYear, eventName, countryName, threeElement, simpleViewImg, simpleViewCanvas, context2d;
+let is3D, eventYear, eventName, countryName, threeElement, simpleViewImg, simpleViewCanvas, context2d, currentEvent;
 
 async function initGraphics(firstEvent) {
     if(is3D){
@@ -27,11 +27,26 @@ function onHover(country, event) {
     }
     countryName.style.left = (event.clientX - 50) + 'px';
     countryName.style.top = (event.clientY + 10) + 'px';
-    countryName.textContent = country;
+    countryName.textContent = country.Name;
 }
 
 function onNothingHovered() {
     countryName.setAttribute('hidden', '');
+}
+
+async function onMouseMove2D(e) {
+    const pixel = context2d.getImageData(e.x, e.y, 1, 1).data;
+    const r = pixel[0];
+    const g = pixel[1];
+    const b = pixel[2];
+    const response = await fetch('./data/worlds/' + currentEvent.WorldId +'/countries.json');
+    const countries = await response.json();
+    if(countries.Countries.some(x => x.Color.R === r && x.Color.G === g && x.Color.B === b)){
+        let country = countries.Countries.find(x => x.Color.R === r && x.Color.G === g && x.Color.B === b);
+        onHover(country, e);
+    } else {
+        onNothingHovered();
+    }
 }
 
 export async function start(is3d, firstEvent, eventYearElement, eventNameElement, countryNameElement, simpleViewImgElement, simpleViewCanvasElement){
@@ -42,16 +57,17 @@ export async function start(is3d, firstEvent, eventYearElement, eventNameElement
     simpleViewImg = simpleViewImgElement;
     simpleViewCanvas = simpleViewCanvasElement;
     context2d = simpleViewCanvasElement.getContext('2d');
-    //simpleViewCanvas.addEventListener('mousemove', e => {
-    //    const pixel = context2d.getImageData(e.x, e.y, 1, 1).data;
-    //    const r =
-    //})
+    simpleViewCanvas.addEventListener('mousemove', e => {
+        if(!is3D)
+            onMouseMove2D(e);
+    })
     simpleViewImg.addEventListener('load', () => context2d.drawImage(simpleViewImg, 0, 0, simpleViewCanvas.clientWidth, simpleViewCanvas.clientHeight));
 
     await initGraphics(firstEvent);
 }
 
 export async function loadCountries(event){
+    currentEvent = event;
     eventYear.textContent = yearToStr(event.Year);
     eventName.textContent = event.Name;
     if(is3D){
@@ -59,14 +75,14 @@ export async function loadCountries(event){
         const countries = await response.json();
         clearModels();
         countries.Countries.forEach(country => {
-            addModel('./data/worlds/' + event.WorldId + '/' + country + '.3mf', () => { }, e => { onHover(country, e)});
+            addModel('./data/worlds/' + event.WorldId + '/' + country.Name + '.3mf', () => { }, e => { onHover(country, e)});
         });
     } else {
         simpleViewImg.src = './data/worlds/' + event.WorldId + '.bmp';
     }
 }
 
-export async function set3D(is3d, currentEvent){
+export async function set3D(is3d){
     if(is3d !== is3D){
         is3D = is3d;
         if(is3D){
