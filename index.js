@@ -9,7 +9,6 @@ const countryName = document.querySelector('#country-name');
 const switcher = document.querySelector('#switch');
 const simpleView = document.querySelector('#simple-view');
 const simpleViewCanvas = document.querySelector('#simple-view-canvas');
-const context2d = simpleViewCanvas.getContext('2d');
 
 let is3D = true;
 
@@ -17,7 +16,16 @@ if(localStorage['is3D'] !== undefined){
     is3D = localStorage['is3D'] === 'true';
 }
 
-switcher.addEventListener('click', switchView)
+const isMobile = navigator.userAgent.toLowerCase().match(/mobile/i);
+
+if(isMobile){
+    is3D = false;
+    if(document.body.requestFullscreen)
+        document.body.requestFullscreen().then();
+    screen.orientation.lock("landscape").then();
+}
+
+switcher.addEventListener('click', switchView);
 
 initGui().then();
 start(is3D, events[0], eventYear, eventName, countryName, simpleView, simpleViewCanvas).then();
@@ -33,9 +41,10 @@ let i = 1;
 async function loadNext() {
     await sleep(10000);
     await loadCountries(events[i]);
-    i+=1;
-    if(i < events.length)
+    if(i + 1 < events.length){
+        i+=1;
         await loadNext();
+    }
 }
 
 async function initGui(){
@@ -44,11 +53,13 @@ async function initGui(){
         eventName.className = 'event-name';
         countryName.className = 'country-name';
         switcher.className = 'switch';
+        switcher.textContent = '2D';
     } else {
         eventYear.className = 'event-year-dark';
         eventName.className = 'event-name-dark';
         countryName.className = 'country-name-dark';
         switcher.className = 'switch-dark';
+        switcher.textContent = '3D';
     }
 }
 

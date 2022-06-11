@@ -77,6 +77,8 @@ export async function set3D(is3d, currentEvent){
             }
         } else {
             simpleViewCanvas.removeAttribute('hidden');
+            simpleViewCanvas.width = simpleViewCanvas.clientWidth;
+            simpleViewCanvas.height = simpleViewCanvas.clientHeight;
         }
         await loadCountries(currentEvent);
     }
