@@ -1,4 +1,4 @@
-import {init, addModel, clearModels, getElement} from "./three-renderer.js";
+import {init, addModel, removeModel, getElement, hasModel} from "./three-renderer.js";
 
 let is3D, eventYear, eventName, countryName, threeElement, simpleViewImg, simpleViewCanvas, context2d, currentEvent;
 
@@ -27,7 +27,7 @@ function onHover(country, event) {
     }
     countryName.style.left = (event.clientX - 50) + 'px';
     countryName.style.top = (event.clientY + 10) + 'px';
-    countryName.textContent = country.Name;
+    countryName.textContent = country;
 }
 
 function onNothingHovered() {
@@ -43,7 +43,7 @@ async function onMouseMove2D(e) {
     const countries = await response.json();
     if(countries.Countries.some(x => x.Color.R === r && x.Color.G === g && x.Color.B === b)){
         let country = countries.Countries.find(x => x.Color.R === r && x.Color.G === g && x.Color.B === b);
-        onHover(country, e);
+        onHover(country.Name, e);
     } else {
         onNothingHovered();
     }
@@ -71,11 +71,11 @@ export async function loadCountries(event){
     eventYear.textContent = yearToStr(event.Year);
     eventName.textContent = event.Name;
     if(is3D){
-        const response = await fetch('./data/worlds/' + event.WorldId +'/countries.json');
-        const countries = await response.json();
-        clearModels();
-        countries.Countries.forEach(country => {
-            addModel('./data/worlds/' + event.WorldId + '/' + country.Name + '.3mf', () => { }, e => { onHover(country, e)});
+        event.ChangedCountriesNames.forEach(country => {
+            const modelUrl = './data/worlds/' + event.WorldId + '/' + country + '.3mf';
+            if(hasModel(modelUrl))
+                removeModel(modelUrl);
+            addModel(modelUrl, () => { }, e => { onHover(country, e)});
         });
     } else {
         simpleViewImg.src = './data/worlds/' + event.WorldId + '.bmp';
