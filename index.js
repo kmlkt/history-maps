@@ -20,9 +20,8 @@ const isMobile = navigator.userAgent.toLowerCase().match(/mobile/i);
 
 if(isMobile){
     is3D = false;
-    if(document.body.requestFullscreen)
-        document.body.requestFullscreen().then();
-    screen.orientation.lock("landscape").then();
+    if(screen.orientation.type !== "landscape-primary" && screen.orientation.type !== "landscape-secondary")
+        alert("Поверните экран");
 }
 
 switcher.addEventListener('click', switchView);
