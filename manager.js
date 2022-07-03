@@ -1,4 +1,4 @@
-import {init, addModel, removeModel, getElement, hasModel} from "./three-renderer.js";
+import {init, addModel, removeModel, getElement, hasModel, clearModels} from "./three-renderer.js";
 
 let is3D, eventYear, eventName, countryName, threeElement, simpleViewImg, simpleViewCanvas, context2d, currentEvent;
 
@@ -97,6 +97,27 @@ export function loadCountries(event){
     });
 }
 
+
+function loadAllCountries(event){
+    return new Promise(r => {
+        currentEvent = event;
+        if(is3D){
+            fetch('./data/worlds/' + event.WorldId + '.json').then(response => response.json().then(countries => {
+                clearModels();
+                countries.forEach(country => {
+                    if(country.Name != 'water'){
+                        addModel('./data/worlds/' + event.WorldId + '/' + country.Name + '.3mf', country.Name,
+                        r, e => { onHover(country.Name, e)});
+                    }
+                });
+            }));
+        } else {
+            simpleViewImg.src = './data/worlds/' + event.WorldId + '.bmp';
+            r();
+        }
+    });
+}
+
 export async function set3D(is3d){
     if(is3d !== is3D){
         is3D = is3d;
@@ -104,15 +125,17 @@ export async function set3D(is3d){
             simpleViewCanvas.setAttribute('hidden', '');
             if(threeElement === undefined){
                 init('./data/worlds/' + currentEvent.WorldId + '/base.3mf', () => {
-                    loadCountries(currentEvent);
+                    loadAllCountries(currentEvent);
                 }, onNothingHovered);
                 threeElement = getElement();
+            } else {
+                loadAllCountries(currentEvent);
             }
         } else {
             simpleViewCanvas.removeAttribute('hidden');
             simpleViewCanvas.width = simpleViewCanvas.clientWidth;
             simpleViewCanvas.height = simpleViewCanvas.clientHeight;
-            await loadCountries(currentEvent);
+            await loadAllCountries(currentEvent);
         }
     }
 }

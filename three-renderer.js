@@ -113,7 +113,21 @@ export function removeModel(name){
     const model = models.find(x => x.name === name);
     const object = scene.getObjectById(model.parentId);
     scene.remove(object);
+    let newModels = [];
+    models.forEach(m => {
+        if(m.name != name){
+            newModels.push(m);
+        }
+    })
+    models = newModels;
     render();
+}
+
+export function clearModels(){
+    models = [];
+    for (let i = 3; i < scene.length; i++){
+        scene.remove(i);
+    }
 }
 
 export function hasModel(name){
