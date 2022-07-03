@@ -6,7 +6,6 @@ function initGraphics(firstEvent) {
     return new Promise((resolve) => {
         if(is3D){
             simpleViewCanvas.setAttribute('hidden', '');
-            let finished = false;
             init('./data/worlds/' + firstEvent.WorldId + '/base.3mf', () => {
                 resolve();
             }, onNothingHovered);
@@ -78,18 +77,19 @@ export function loadCountries(event){
         if(is3D){
             if(event.ChangedCountriesNames.length === 0)
                 r();
-            event.ChangedCountriesNames.forEach(country => {
-                const modelUrl = './data/worlds/' + event.WorldId + '/' + country + '.3mf';
-                if(hasModel(modelUrl))
-                    removeModel(modelUrl);
-                fetch(modelUrl).then(response =>{
-                        if(response.ok)
-                            addModel(modelUrl, () => { r();}, e => { onHover(country, e)});
-                        else
-                            r();
-                }).catch(() => r());
-
-            });
+            fetch('./data/worlds/' + event.WorldId + '.json').then(response => response.json().then(countries => {
+                event.ChangedCountriesNames.forEach(country => {
+                    const modelUrl = './data/worlds/' + event.WorldId + '/' + country + '.3mf';
+                    if(hasModel(country)){
+                        removeModel(country);
+                    }
+                    if(countries.some(c => c.Name == country)){
+                        addModel(modelUrl, country, r, e => onHover(country, e));
+                    } else {
+                        r();
+                    }
+                });
+            }));
         } else {
             simpleViewImg.src = './data/worlds/' + event.WorldId + '.bmp';
             r();

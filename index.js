@@ -1,12 +1,14 @@
 import {start, loadCountries, set3D} from "./manager.js";
+import { init, addEvent, removeEvent } from "./event-list.js";
 
 const response = await fetch('./data/events.json');
 const events = await response.json();
 
 const eventYear = document.querySelector('#event-year');
 const ourAge = document.querySelector('#our-age');
-const beforeOurAge= document.querySelector('#before-our-age');
+const beforeOurAge = document.querySelector('#before-our-age');
 const eventName = document.querySelector('#event-name');
+const eventPanel = document.querySelector('#event-panel');
 const countryName = document.querySelector('#country-name');
 const switcher = document.querySelector('#switch');
 const aboutLink = document.querySelector('#about-link');
@@ -31,10 +33,11 @@ if(isMobile){
 switcher.addEventListener('click', switchView);
 
 initGui().then();
-let id = 1;
+const startNum = 0;
+let id = startNum + 1;
 
-start(is3D, events[0], eventYear, eventName, countryName, simpleView, simpleViewCanvas).then(() => {
-    let year = events[0].Year;
+start(is3D, events[startNum], eventYear, eventName, countryName, simpleView, simpleViewCanvas).then(() => {
+    let year = events[startNum].Year;
     eventYear.textContent = year < 0 ? -year : year;
     if(year < 0){
         beforeOurAge.removeAttribute('hidden');
@@ -43,9 +46,10 @@ start(is3D, events[0], eventYear, eventName, countryName, simpleView, simpleView
         ourAge.removeAttribute('hidden');
         beforeOurAge.setAttribute('hidden', '');
     }
-    load(0).then(() => {
+    init(eventPanel, eventName);
+    load(startNum).then(() => {
         if(events.length > 1){
-            let next = events[1].Year;
+            let next = events[startNum + 1].Year;
             let interval = setInterval(nextYear, 7);
 
             function nextYear() {
@@ -78,12 +82,11 @@ function sleep(ms) {
 }
 
 async function load(id) {
-    eventName.textContent = '';
     const event = events[id];
-    eventName.textContent = event.Name;
+    addEvent(event.Name);
     await loadCountries(event);
     await sleep(2000);
-    eventName.textContent = '';
+    removeEvent(event.Name);
 }
 
 async function initGui(){

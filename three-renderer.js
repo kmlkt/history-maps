@@ -25,8 +25,8 @@ function onMouseMove(event) {
     if (intersects.length > 0) {
         intersects.forEach(intersect => {
             selection = intersect.object
-            if(models.some(x => x.id === selection.uuid)){
-                let model = models.find(x => x.id === selection.uuid);
+            if(models.some(x => x.id === selection.id)){
+                let model = models.find(x => x.id === selection.id);
                 model.hover(event);
             }
             else {
@@ -95,10 +95,12 @@ export function init(modelUrl, onLoad, onNothingHovered) {
 
 }
 
-export function addModel(modelUrl, onLoad, onHover){
+export function addModel(modelUrl, name, onLoad, onHover){
     loadModel(modelUrl, object => {
         models.push({
-            id: object.children[0].children[0].uuid,
+            id: object.children[0].children[0].id,
+            parentId: object.id,
+            name: name,
             hover: onHover,
             url: modelUrl
         });
@@ -107,12 +109,15 @@ export function addModel(modelUrl, onLoad, onHover){
     })
 }
 
-export function removeModel(modelUrl){
-    scene.remove(models.find(x => x.url === modelUrl).id);
+export function removeModel(name){
+    const model = models.find(x => x.name === name);
+    const object = scene.getObjectById(model.parentId);
+    scene.remove(object);
+    render();
 }
 
-export function hasModel(modelUrl){
-    return models.some(x => x.url === modelUrl);
+export function hasModel(name){
+    return models.some(x => x.name === name);
 }
 
 export function getElement(){
