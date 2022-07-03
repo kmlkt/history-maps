@@ -6,11 +6,25 @@
     <title>Исторические карты</title>
 </head>
 <body>
-<div class="panel">
-    <h1 id="event-year"></h1>
-    <h1 id="event-name"></h1>
+<canvas id="simple-view-canvas" class="simple-view" hidden>
+
+</canvas>
+<img id="simple-view" class="simple-view" alt="2D view" hidden>
+<div class="event-panel" id="event-panel">
+    <h1 class="event-year">
+        <a id="event-year">Загрузка...</a>
+        <a id="our-age" hidden>год н. э.</a>
+        <a id="before-our-age" hidden>год до н. э.</a>
+    </h1>
+    <h1 class="event-name" id="event-name"></h1>
 </div>
-<div id="country-name"></div>
+<div id="country-name" class="country-name"></div>
+<div class="btn-container">
+    <button id="switch" class="btn">2D</button>
+    <form action="./about.html" method="get" target="_blank">
+        <button type="submit" class="btn" id="about-link">О проекте</button>
+    </form>
+</div>
 <script type="module" src="index.js"></script>
 </body>
 </html>
