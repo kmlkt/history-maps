@@ -21,10 +21,12 @@ if(localStorage['is3D'] !== undefined){
     is3D = localStorage['is3D'] === 'true';
 }
 
-
 switcher.addEventListener('click', switchView);
 
 initGui().then();
+
+let continuousEvents = [];
+
 const startNum = 0;
 let id = startNum + 1;
 
@@ -42,7 +44,7 @@ start(is3D, events[startNum], eventYear, eventName, countryName, simpleView, sim
     load(startNum).then(() => {
         if(events.length > 1){
             let next = events[startNum + 1].Year;
-            let interval = setInterval(nextYear, 7);
+            let interval = setInterval(nextYear, 5);
 
             function nextYear() {
                 if (year < next) {
@@ -52,6 +54,10 @@ start(is3D, events[startNum], eventYear, eventName, countryName, simpleView, sim
                         beforeOurAge.setAttribute('hidden', '');
                     }
                     eventYear.textContent = year < 0 ? -year : year;
+                    if(continuousEvents.some(x => x.EndYear == year)){
+                        continuousEvents.filter(x => x.EndYear == year).forEach(ce => removeEvent(ce.Name));
+                        continuousEvents = continuousEvents.filter(x => x.EndYear != year);
+                    }
                 } else {
                     clearInterval(interval);
                     load(id).then(() => {
@@ -78,7 +84,11 @@ async function load(id) {
     addEvent(event.Name);
     await loadCountries(event);
     await sleep(2000);
-    removeEvent(event.Name);
+    if (event.EndYear == null){
+        removeEvent(event.Name);
+    } else {
+        continuousEvents.push(event);
+    }
 }
 
 async function initGui(){
