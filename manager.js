@@ -1,4 +1,4 @@
-import {init, addModel, removeModel, getElement, hasModel, clearModels} from "./three-renderer.js";
+import {init, addModel, updateModel, removeModel, getElement, hasModel, clearModels, render} from "./three-renderer.js";
 
 let is3D, eventYear, eventName, countryName, threeElement, simpleViewImg, simpleViewCanvas, context2d, currentEvent;
 
@@ -71,30 +71,39 @@ export async function start(is3d, firstEvent, eventYearElement, eventNameElement
     await initGraphics(firstEvent);
 }
 
-export function loadCountries(event){
-    return new Promise(r => {
-        currentEvent = event;
-        if(is3D){
-            if(event.ChangedCountriesNames.length === 0)
-                r();
-            fetch('./data/worlds/' + event.WorldId + '.json').then(response => response.json().then(countries => {
-                event.ChangedCountriesNames.forEach(country => {
-                    const modelUrl = './data/worlds/' + event.WorldId + '/' + country + '.3mf';
-                    if(hasModel(country)){
-                        removeModel(country);
-                    }
-                    if(countries.some(c => c.Name == country)){
-                        addModel(modelUrl, country, r, e => onHover(country, e));
-                    } else {
-                        r();
-                    }
-                });
-            }));
-        } else {
-            simpleViewImg.src = './data/worlds/' + event.WorldId + '.bmp';
-            r();
-        }
-    });
+export async function loadCountries(event){
+    currentEvent = event;
+    if(is3D){
+        if(event.ChangedCountriesNames.length === 0)
+            return;
+        const response = await fetch('./data/worlds/' + event.WorldId + '.json');
+        const countries = await response.json();
+        let add = [];
+        let update = [];
+        let remove = [];
+        event.ChangedCountriesNames.forEach(async (country) => {
+            if(countries.some(c => c.Name == country)){
+                if(hasModel(country)){
+                    update.push(country);
+                } else {
+                    add.push(country);
+                }
+            } else if (hasModel(country)){
+                remove.push(country);
+            }
+        });
+        add.forEach(async (country) =>{
+            await addModel('./data/worlds/' + event.WorldId + '/' + country + '.3mf', country, e => onHover(country, e));
+        });
+        update.forEach(async (country) =>{
+            await updateModel(country, './data/worlds/' + event.WorldId + '/' + country + '.3mf');
+        });
+        remove.forEach((country) =>{
+            removeModel(country);
+        });
+    } else {
+        simpleViewImg.src = './data/worlds/' + event.WorldId + '.bmp';
+    }
 }
 
 

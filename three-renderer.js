@@ -39,7 +39,7 @@ function onMouseMove(event) {
     }
 }
 
-function render() {
+export function render() {
     renderer.render( scene, camera );
 }
 
@@ -95,18 +95,19 @@ export function init(modelUrl, onLoad, onNothingHovered) {
 
 }
 
-export function addModel(modelUrl, name, onLoad, onHover){
-    loadModel(modelUrl, object => {
-        models.push({
-            id: object.children[0].children[0].id,
-            parentId: object.id,
-            name: name,
-            hover: onHover,
-            url: modelUrl
-        });
-        onLoad();
-        render();
-    })
+export function addModel(modelUrl, name, onHover){
+    return new Promise(r => {
+        loadModel(modelUrl, object => {
+            models.push({
+                id: object.children[0].children[0].id,
+                parentId: object.id,
+                name: name,
+                hover: onHover,
+                url: modelUrl
+            });
+            r();
+        })
+    });
 }
 
 export function removeModel(name){
@@ -118,9 +119,21 @@ export function removeModel(name){
         if(m.name != name){
             newModels.push(m);
         }
-    })
+    });
     models = newModels;
-    render();
+}
+
+export function updateModel(name, modelUrl){
+    return new Promise(r => {
+        const model = models.find(x => x.name === name);
+        const previousObject = scene.getObjectById(model.parentId);
+        loadModel(modelUrl, object => {
+            model.id = object.children[0].children[0].id;
+            model.parentId = object.id;
+            scene.remove(previousObject);
+            r();
+        });
+    });
 }
 
 export function clearModels(){
