@@ -14,6 +14,8 @@ const switcher = document.querySelector('#switch');
 const aboutLink = document.querySelector('#about-link');
 const simpleView = document.querySelector('#simple-view');
 const simpleViewCanvas = document.querySelector('#simple-view-canvas');
+const bottomInfo = document.querySelector('#bottom-info');
+const closeBottomInfo = document.querySelector('#bottom-info-close');
 
 let is3D = true;
 
@@ -22,6 +24,15 @@ if(localStorage['is3D'] !== undefined){
 }
 
 switcher.addEventListener('click', switchView);
+
+if(localStorage['infoClosed'] === 'true'){
+    bottomInfo.remove();
+} else {
+    closeBottomInfo.addEventListener('click', _ => {
+        localStorage['infoClosed'] = true;
+        bottomInfo.remove();
+    });
+}
 
 initGui().then();
 
