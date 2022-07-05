@@ -23,6 +23,15 @@ if(localStorage['is3D'] !== undefined){
     is3D = localStorage['is3D'] === 'true';
 }
 
+const isMobile = navigator.userAgent.toLowerCase().match(/mobile/i);
+
+if(isMobile){
+    is3D = false;
+    if(screen.orientation.type !== "landscape-primary" && screen.orientation.type !== "landscape-secondary")
+        alert("Поверните экран");
+    switcher.setAttribute('hidden', '');
+}
+
 switcher.addEventListener('click', switchView);
 
 if(localStorage['infoClosed'] === 'true'){
