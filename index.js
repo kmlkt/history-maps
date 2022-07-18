@@ -1,5 +1,5 @@
-import {start, loadCountries, set3D} from "./manager.js";
-import { init, addEvent, removeEvent } from "./event-list.js";
+import {start, loadCountries, set3D, jumpTo} from "./manager.js";
+import { init, addEvent, removeEvent, clearAllEvents } from "./event-list.js";
 
 const response = await fetch('./data/events.json');
 const events = await response.json();
@@ -16,6 +16,12 @@ const simpleView = document.querySelector('#simple-view');
 const simpleViewCanvas = document.querySelector('#simple-view-canvas');
 const bottomInfo = document.querySelector('#bottom-info');
 const closeBottomInfo = document.querySelector('#bottom-info-close');
+const dialog = document.querySelector('#input-year-dialog');
+const inputYear = document.querySelector('#input-year');
+const dialogOk = document.querySelector('#dialog-ok');
+const dialogCancel = document.querySelector('#dialog-cancel');
+const showDialog = document.querySelector('#show-dialog');
+const pause = document.querySelector('#pause');
 
 let is3D = true;
 
@@ -33,6 +39,10 @@ if(isMobile){
 }
 
 switcher.addEventListener('click', switchView);
+pause.addEventListener('click', pauseClicked);
+showDialog.addEventListener('click', () => {dialog.removeAttribute('hidden'); paused = true;});
+dialogOk.addEventListener('click', handleDialogSubmit)
+dialogCancel.addEventListener('click', () => {dialog.setAttribute('hidden', ''); paused = false;});
 
 if(localStorage['infoClosed'] === 'true'){
     bottomInfo.remove();
@@ -47,11 +57,17 @@ initGui().then();
 
 let continuousEvents = [];
 
+const timeout = 17;
 const startNum = 0;
 let id = startNum + 1;
+let year, next;
+let paused = false;
 
-start(is3D, events[startNum], eventYear, eventName, countryName, simpleView, simpleViewCanvas).then(() => {
-    let year = events[startNum].Year;
+const maxYear = events[events.length - 1].Year;
+
+async function run(){
+    await start(is3D, events[startNum], eventYear, eventName, countryName, simpleView, simpleViewCanvas);
+    year = events[startNum].Year;
     eventYear.textContent = year < 0 ? -year : year;
     if(year < 0){
         beforeOurAge.removeAttribute('hidden');
@@ -61,37 +77,42 @@ start(is3D, events[startNum], eventYear, eventName, countryName, simpleView, sim
         beforeOurAge.setAttribute('hidden', '');
     }
     init(eventPanel, eventName);
-    load(startNum).then(() => {
-        if(events.length > 1){
-            let next = events[startNum + 1].Year;
-            let interval = setInterval(nextYear, 5);
+    await load(startNum);
+    next = events[startNum + 1].Year;
 
-            function nextYear() {
-                if (year < next) {
-                    year++;
-                    if (year === 0) {
-                        ourAge.removeAttribute('hidden');
-                        beforeOurAge.setAttribute('hidden', '');
-                    }
-                    eventYear.textContent = year < 0 ? -year : year;
-                    if(continuousEvents.some(x => x.EndYear == year)){
-                        continuousEvents.filter(x => x.EndYear == year).forEach(ce => removeEvent(stringifyContinuousEvent(ce)));
-                        continuousEvents = continuousEvents.filter(x => x.EndYear != year);
-                    }
-                } else {
-                    clearInterval(interval);
-                    load(id).then(() => {
-                        if (id + 1 < events.length) {
-                            id += 1;
-                            next = events[id].Year;
-                            interval = setInterval(nextYear, 7);
-                        }
-                    });
-                }
-            }
+    while(true){
+        if(year < maxYear && !paused){
+            await nextYear();
+            await sleep(timeout);
+        } else {
+            await sleep(timeout * 5);
         }
-    });
-});
+    }
+}
+
+run();
+
+async function nextYear() {
+    if (year < next) {
+        year++;
+        if (year === 0) {
+            ourAge.removeAttribute('hidden');
+            beforeOurAge.setAttribute('hidden', '');
+        }
+        eventYear.textContent = year < 0 ? -year : year;
+        if(continuousEvents.some(x => x.EndYear == year)){
+            continuousEvents.filter(x => x.EndYear == year).forEach(ce => removeEvent(stringifyContinuousEvent(ce)));
+            continuousEvents = continuousEvents.filter(x => x.EndYear != year);
+        }
+    } else {
+        await load(id).then(() => {
+            if (id + 1 < events.length) {
+                id += 1;
+                next = events[id].Year;
+            }
+        });
+    }
+}
 
 
 
@@ -133,23 +154,81 @@ async function initGui(){
         eventName.className = 'event-name';
         switcher.className = 'btn';
         aboutLink.className = 'btn';
+        showDialog.className = 'btn';
+        pause.className = 'btn';
         switcher.textContent = '2D';
         beforeOurAge.className = 'event-year';
         ourAge.className = 'event-year';
+        document.querySelectorAll('.event-name-dark').forEach(e => e.className = 'event-name');
     } else {
         eventYear.className = 'event-year-dark';
         eventName.className = 'event-name-dark';
         switcher.className = 'btn-dark';
         aboutLink.className = 'btn-dark';
+        showDialog.className = 'btn-dark';
+        pause.className = 'btn-dark';
         switcher.textContent = '3D';
         beforeOurAge.className = 'event-year-dark';
         ourAge.className = 'event-year-dark';
+        document.querySelectorAll('.event-name').forEach(e => e.className = 'event-name-dark');
     }
 }
 
 async function switchView(_) {
+    paused = true;
     is3D = !is3D;
     await initGui();
     await set3D(is3D, events[id]);
     localStorage['is3D'] = is3D;
+    paused = false;
+}
+
+async function handleDialogSubmit(){
+    if(isNaN(inputYear.value) || inputYear.value == ''){
+        inputYear.value = 0;
+    } else {
+        const year = parseInt(inputYear.value);
+        dialog.setAttribute('hidden', '');
+        jump(year);
+    }
+}
+
+async function jump(y){
+    paused = true;
+    clearAllEvents();
+    let currentEvent;
+    events.forEach(async (event) => {
+        if(event.Year < y){
+            currentEvent = event;
+            if(event.EndYear != null && event.EndYear >= y){
+                continuousEvents.push(event);
+                addEvent(stringifyContinuousEvent(event));
+            }
+        }
+    });
+    await jumpTo(currentEvent);
+    if(currentEvent !== undefined){
+        let index = events.indexOf(currentEvent);
+        id = index + 1;
+        if(index + 1 < events.length){
+            next = events[index + 1].Year;
+        } else {
+            next = currentEvent.Year;
+        }
+    } else {
+        next = events[0].Year;
+        id = 0;
+    }
+    year = y - 1;
+    paused = false;
+}
+
+async function pauseClicked(){
+    if(paused){
+        pause.textContent = '►';
+        paused = false;
+    } else {
+        pause.textContent = '=';
+        paused = true;
+    }
 }
