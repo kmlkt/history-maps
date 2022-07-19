@@ -130,12 +130,11 @@ async function nextYear() {
             continuousEvents = continuousEvents.filter(x => x.EndYear != year);
         }
     } else {
-        await load(id).then(() => {
-            if (id + 1 < events.length) {
-                id += 1;
-                next = events[id].Year;
-            }
-        });
+        await load(id);
+        if (id + 1 < events.length) {
+            id += 1;
+            next = events[id].Year;
+        }
     }
 }
 
@@ -165,7 +164,7 @@ async function load(id) {
         addEvent(stringifyContinuousEvent(event));
     }
     await loadCountries(event);
-    await sleep(2000);
+    await sleep(3500);
     if (event.EndYear == null){
         removeEvent(event.Name);
     } else {
