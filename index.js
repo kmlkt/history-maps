@@ -16,12 +16,22 @@ const simpleView = document.querySelector('#simple-view');
 const simpleViewCanvas = document.querySelector('#simple-view-canvas');
 const bottomInfo = document.querySelector('#bottom-info');
 const closeBottomInfo = document.querySelector('#bottom-info-close');
-const dialog = document.querySelector('#input-year-dialog');
+
+const yearDialog = document.querySelector('#input-year-dialog');
 const inputYear = document.querySelector('#input-year');
-const dialogOk = document.querySelector('#dialog-ok');
-const dialogCancel = document.querySelector('#dialog-cancel');
-const showDialog = document.querySelector('#show-dialog');
+const yearDialogOk = document.querySelector('#input-year-dialog-ok');
+const yearDialogCancel = document.querySelector('#input-year-dialog-cancel');
+const showYearDialog = document.querySelector('#show-input-year-dialog');
+
 const pause = document.querySelector('#pause');
+
+const speedDialog = document.querySelector('#speed-dialog');
+const speedDialogPlus = document.querySelector('#speed-dialog-plus');
+const speedDialogMinus = document.querySelector('#speed-dialog-minus');
+const speedDialogValue = document.querySelector('#speed-dialog-value');
+const speedDialogOk = document.querySelector('#speed-dialog-ok');
+const speedDialogCancel = document.querySelector('#speed-dialog-cancel');
+const showSpeedDialog = document.querySelector('#show-speed-dialog');
 
 let is3D = true;
 
@@ -39,10 +49,18 @@ if(isMobile){
 }
 
 switcher.addEventListener('click', switchView);
+
 pause.addEventListener('click', pauseClicked);
-showDialog.addEventListener('click', () => {dialog.removeAttribute('hidden'); paused = true;});
-dialogOk.addEventListener('click', handleDialogSubmit)
-dialogCancel.addEventListener('click', () => {dialog.setAttribute('hidden', ''); paused = false;});
+
+showYearDialog.addEventListener('click', () => {yearDialog.removeAttribute('hidden'); paused = true;});
+yearDialogOk.addEventListener('click', handleYearDialogSubmit);
+yearDialogCancel.addEventListener('click', () => {yearDialog.setAttribute('hidden', ''); paused = false;});
+
+showSpeedDialog.addEventListener('click', () => {speedDialog.removeAttribute('hidden'); paused = true;});
+speedDialogPlus.addEventListener('click', handleSpeedDialogPlus);
+speedDialogMinus.addEventListener('click', handleSpeedDialogMinus);
+speedDialogOk.addEventListener('click', handleSpeedDialogSubmit);
+speedDialogCancel.addEventListener('click', () => {speedDialog.setAttribute('hidden', ''); paused = false;});
 
 if(localStorage['infoClosed'] === 'true'){
     bottomInfo.remove();
@@ -57,7 +75,10 @@ initGui().then();
 
 let continuousEvents = [];
 
-const timeout = 17;
+const speedMin = 0;
+const speedMax = 10;
+
+let speed, timeout;
 const startNum = 0;
 let id = startNum + 1;
 let year, next;
@@ -66,6 +87,10 @@ let paused = false;
 const maxYear = events[events.length - 1].Year;
 
 async function run(){
+    speed = await getSpeed();
+    speedDialogValue.textContent = speed;
+    timeout = 31 - 3 * speed;
+
     await start(is3D, events[startNum], eventYear, eventName, countryName, simpleView, simpleViewCanvas);
     year = events[startNum].Year;
     eventYear.textContent = year < 0 ? -year : year;
@@ -81,11 +106,11 @@ async function run(){
     next = events[startNum + 1].Year;
 
     while(true){
-        if(year < maxYear && !paused){
+        if(year <= maxYear && !paused){
             await nextYear();
             await sleep(timeout);
         } else {
-            await sleep(timeout * 5);
+            await sleep(100);
         }
     }
 }
@@ -154,7 +179,8 @@ async function initGui(){
         eventName.className = 'event-name';
         switcher.className = 'btn';
         aboutLink.className = 'btn';
-        showDialog.className = 'btn';
+        showYearDialog.className = 'btn';
+        showSpeedDialog.className = 'btn';
         pause.className = 'btn';
         switcher.textContent = '2D';
         beforeOurAge.className = 'event-year';
@@ -165,7 +191,8 @@ async function initGui(){
         eventName.className = 'event-name-dark';
         switcher.className = 'btn-dark';
         aboutLink.className = 'btn-dark';
-        showDialog.className = 'btn-dark';
+        showYearDialog.className = 'btn-dark';
+        showSpeedDialog.className = 'btn-dark';
         pause.className = 'btn-dark';
         switcher.textContent = '3D';
         beforeOurAge.className = 'event-year-dark';
@@ -183,12 +210,12 @@ async function switchView(_) {
     paused = false;
 }
 
-async function handleDialogSubmit(){
+async function handleYearDialogSubmit(){
     if(isNaN(inputYear.value) || inputYear.value == ''){
         inputYear.value = 0;
     } else {
         const year = parseInt(inputYear.value);
-        dialog.setAttribute('hidden', '');
+        yearDialog.setAttribute('hidden', '');
         jump(year);
     }
 }
@@ -220,6 +247,14 @@ async function jump(y){
         id = 0;
     }
     year = y - 1;
+    eventYear.textContent = y < 0 ? -y : y;
+    if(y < 0){
+        beforeOurAge.removeAttribute('hidden');
+        ourAge.setAttribute('hidden', '');
+    } else {
+        ourAge.removeAttribute('hidden');
+        beforeOurAge.setAttribute('hidden', '');
+    }
     paused = false;
 }
 
@@ -230,5 +265,42 @@ async function pauseClicked(){
     } else {
         pause.textContent = '=';
         paused = true;
+    }
+}
+
+async function handleSpeedDialogPlus(){
+    const val = parseInt(speedDialogValue.textContent);
+    if(val < speedMax){
+        speedDialogValue.textContent = val + 1;
+    }
+}
+
+async function handleSpeedDialogMinus(){
+    const val = parseInt(speedDialogValue.textContent);
+    if(val > speedMin + 1){
+        speedDialogValue.textContent = val - 1;
+    }
+}
+
+async function handleSpeedDialogSubmit(){
+    const val = parseInt(speedDialogValue.textContent);
+    await setSpeed(val);
+    paused = false;
+    speedDialog.setAttribute('hidden', '');
+}
+
+async function getSpeed(){
+    const value = localStorage.getItem('speed');
+    if(value == null){
+        return 3;
+    }
+    return parseInt(value);
+}
+
+async function setSpeed(value){
+    if(value > speedMin && value <= speedMax){
+        speed = value;
+        timeout = 31 - 3 * speed;
+        localStorage.setItem('speed', value);
     }
 }

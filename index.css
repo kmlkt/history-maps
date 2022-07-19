@@ -29,9 +29,10 @@ body, h1, h2, h3, h4, h5, h6, div{
     font: italic 25px Consolas;
     cursor: default;
     margin: 5px;
+    padding: 5px;
     color: black;
-    background-color: white;
-    border: black 2px solid;
+    /*background-color: white;
+    border: black 2px solid;*/
 }
 
 .event-year-dark {
@@ -175,4 +176,23 @@ body, h1, h2, h3, h4, h5, h6, div{
 
 .dialog-cancel {
     float: right;
+}
+
+.small-dialog {
+    right: 40%;
+    left: 40%;
+}
+
+.dialog-minus {
+    float: left;
+}
+
+.dialog-plus {
+    float: right;
+}
+
+.dialog-value {
+    margin: auto;
+    text-align: center;
+    font: italic 35px "Comic Sans MS";
 }
