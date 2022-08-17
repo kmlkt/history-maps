@@ -23,6 +23,8 @@ jobs:
               run: gulp
             - name: Remove .gitignore
               run: rm .gitignore
+            - name: Checkout another branch
+              run: git checkout pages-deploy
             - name: Push
               uses: EndBug/add-and-commit@v9
               with:
