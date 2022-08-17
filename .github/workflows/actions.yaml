@@ -1,0 +1,26 @@
+name: Build
+on: 
+    push: 
+        branches:
+            - develop
+jobs:
+    build-and-deploy:
+        runs-on: ubuntu-latest
+        steps: 
+            - name: Checkout project
+              uses: actions/checkout@v3
+            - name: Setup Node.js
+              uses: actions/setup-node@v2.1.4
+            - name: Install packages
+              run: |
+                  npm install -g gulp
+                  npm install -g gulp-util
+                  npm install -g gulp-cli
+            - name: Build the project using Gulp
+              run: gulp
+            - name: Remove .gitignore
+              run: rm .gitignore
+            - name: Push
+              uses: EndBug/add-and-commit@v9
+              with:
+                  new_branch: build
