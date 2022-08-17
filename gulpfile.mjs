@@ -7,12 +7,12 @@ var paths = {
   pages: ["src/*.html"],
 };
 gulp.task("copy-html", function () {
-  return gulp.src(paths.pages).pipe(gulp.dest("docs"));
+  return gulp.src(paths.pages).pipe(gulp.dest("dist"));
 });
 
 gulp.task('copy-css', function() {
   return gulp.src('src/css/*.css')
-    .pipe(gulp.dest('docs/css'));
+    .pipe(gulp.dest('dist/css'));
 });
 
 gulp.task(
@@ -28,6 +28,6 @@ gulp.task(
       .plugin(tsify)
       .bundle()
       .pipe(source("bundle.js"))
-      .pipe(gulp.dest("docs"));
+      .pipe(gulp.dest("dist"));
   })
 );
