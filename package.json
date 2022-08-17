@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "gulp": "^4.0.2"
+  },
+  "devDependencies": {
+    "gulp-css-copy-assets": "^0.0.5"
+  }
+}
