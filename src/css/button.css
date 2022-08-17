@@ -1,0 +1,59 @@
+.btn {
+    font: italic 25px "Comic Sans MS";
+    color: white;
+    background-color: black;
+    border: white 2px solid;
+    border-radius: 2px;
+    margin: 10px;
+}
+
+.btn:hover {
+    font: italic 25px "Comic Sans MS";
+    color: black;
+    background-color: white;
+    border: white 2px solid;
+    border-radius: 2px;
+    margin: 10px;
+}
+
+.btn:active {
+    font: italic 25px "Comic Sans MS";
+    color: black;
+    background-color: white;
+    border: black 2px solid;
+    border-radius: 2px;
+    margin: 10px;
+}
+
+.btn-dark {
+    font: italic 25px "Comic Sans MS";
+    color: black;
+    background-color: white;
+    border: black 2px solid;
+    border-radius: 2px;
+    margin: 10px;
+}
+
+.btn-dark:hover {
+    font: italic 25px "Comic Sans MS";
+    color: white;
+    background-color: black;
+    border: black 2px solid;
+    border-radius: 2px;
+    margin: 10px;
+}
+
+.btn-dark:active {
+    font: italic 25px "Comic Sans MS";
+    color: white;
+    background-color: black;
+    border: white 2px solid;
+    border-radius: 2px;
+    margin: 10px;
+}
+
+.btn-container{
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}

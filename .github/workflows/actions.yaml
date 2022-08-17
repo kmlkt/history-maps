@@ -1,0 +1,29 @@
+name: Build
+on: 
+    push: 
+        branches:
+            - master
+jobs:
+    build-and-deploy:
+        runs-on: ubuntu-latest
+        steps: 
+            - name: Checkout project
+              uses: actions/checkout@v3
+            - name: Setup Node.js
+              uses: actions/setup-node@v2.1.4
+            - name: Install packages
+              run: |
+                  npm install gulp
+                  npm install gulp-util
+                  npm install gulp-cli
+                  npm install browserify
+                  npm install vinyl-source-stream
+                  npm install tsify
+            - name: Build the project using Gulp
+              run: gulp
+            - name: Remove .gitignore
+              run: rm .gitignore
+            - name: Push
+              uses: EndBug/add-and-commit@v9
+              with:
+                  new_branch: pages-deploy

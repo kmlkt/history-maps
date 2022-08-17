@@ -1,0 +1,52 @@
+.event-panel {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+}
+
+.event-year {
+    font: italic 35px "Comic Sans MS";
+    color: white;
+    margin: 10px;
+}
+
+.event-name {
+    font: italic 25px "Comic Sans MS";
+    color: white;
+    margin: 10px;
+}
+
+.country-name {
+    z-index: 10;
+    position: absolute;
+    font: italic 25px Consolas;
+    cursor: default;
+    margin: 5px;
+    padding: 5px;
+    color: black;
+    /*background-color: white;
+    border: black 2px solid;*/
+}
+
+.event-year-dark {
+    font: italic 35px "Comic Sans MS";
+    color: black;
+    margin: 10px;
+}
+
+.event-name-dark {
+    font: italic 25px "Comic Sans MS";
+    color: black;
+    margin: 10px;
+}
+
+.country-name-dark {
+    z-index: 10;
+    position: absolute;
+    font: italic 25px Consolas;
+    cursor: default;
+    margin: 5px;
+    color: white;
+    background-color: black;
+    border: white 2px solid;
+}
