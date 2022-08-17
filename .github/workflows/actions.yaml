@@ -19,10 +19,10 @@ jobs:
                   npm install browserify
                   npm install vinyl-source-stream
                   npm install tsify
-            - name: Build the project using Gulp
-              run: gulp
             - name: Remove .gitignore
               run: rm .gitignore
+            - name: Build the project using Gulp
+              run: gulp
             - name: Deploy 🚀
               uses: JamesIves/github-pages-deploy-action@v4
               with:
