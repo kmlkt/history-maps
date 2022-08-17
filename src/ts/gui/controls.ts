@@ -1,38 +1,38 @@
 import throwError from "../common/throw-error";
 
-function throwNotFound(): never {
-    throwError('a gui element was not found');
+function getElement(selector: string): Element {
+    return document.querySelector('#event-year') ?? throwError(`Gui element "${selector}" was not found"`);
 }
 
 const controls = {
-    eventYear: document.querySelector('#event-year') ?? throwNotFound(),
-    ourAge: document.querySelector('#our-age') ?? throwNotFound(),
-    beforeOurAge: document.querySelector('#before-our-age') ?? throwNotFound(),
-    eventName: document.querySelector('#event-name') ?? throwNotFound(),
-    eventPanel: document.querySelector('#event-panel') ?? throwNotFound(),
-    countryName: document.querySelector('#country-name') ?? throwNotFound(),
-    switcher: document.querySelector('#switch') ?? throwNotFound(),
-    aboutLink: document.querySelector('#about-link') ?? throwNotFound(),
-    simpleView: document.querySelector('#simple-view') ?? throwNotFound(),
-    simpleViewCanvas: document.querySelector('#simple-view-canvas') ?? throwNotFound(),
-    bottomInfo: document.querySelector('#bottom-info') ?? throwNotFound(),
-    closeBottomInfo: document.querySelector('#bottom-info-close') ?? throwNotFound(),
+    eventYear: getElement('#event-year'),
+    ourAge: getElement('#our-age'),
+    beforeOurAge: getElement('#before-our-age'),
+    eventName: getElement('#event-name'),
+    eventPanel: getElement('#event-panel'),
+    countryName: getElement('#country-name'),
+    switcher: getElement('#switch'),
+    aboutLink: getElement('#about-link'),
+    simpleView: getElement('#simple-view'),
+    simpleViewCanvas: getElement('#simple-view-canvas'),
+    bottomInfo: getElement('#bottom-info'),
+    closeBottomInfo: getElement('#bottom-info-close'),
 
-    yearDialog: document.querySelector('#input-year-dialog') ?? throwNotFound(),
-    inputYear: document.querySelector('#input-year') ?? throwNotFound(),
-    yearDialogOk: document.querySelector('#input-year-dialog-ok') ?? throwNotFound(),
-    yearDialogCancel: document.querySelector('#input-year-dialog-cancel') ?? throwNotFound(),
-    showYearDialog: document.querySelector('#show-input-year-dialog') ?? throwNotFound(),
+    yearDialog: getElement('#input-year-dialog'),
+    inputYear: getElement('#input-year'),
+    yearDialogOk: getElement('#input-year-dialog-ok'),
+    yearDialogCancel: getElement('#input-year-dialog-cancel'),
+    showYearDialog: getElement('#show-input-year-dialog'),
 
-    pause: document.querySelector('#pause') ?? throwNotFound(),
+    pause: getElement('#pause'),
 
-    speedDialog: document.querySelector('#speed-dialog') ?? throwNotFound(),
-    speedDialogPlus: document.querySelector('#speed-dialog-plus') ?? throwNotFound(),
-    speedDialogMinus: document.querySelector('#speed-dialog-minus') ?? throwNotFound(),
-    speedDialogValue: document.querySelector('#speed-dialog-value') ?? throwNotFound(),
-    speedDialogOk: document.querySelector('#speed-dialog-ok') ?? throwNotFound(),
-    speedDialogCancel: document.querySelector('#speed-dialog-cancel') ?? throwNotFound(),
-    showSpeedDialog: document.querySelector('#show-speed-dialog') ?? throwNotFound(),
+    speedDialog: getElement('#speed-dialog'),
+    speedDialogPlus: getElement('#speed-dialog-plus'),
+    speedDialogMinus: getElement('#speed-dialog-minus'),
+    speedDialogValue: getElement('#speed-dialog-value'),
+    speedDialogOk: getElement('#speed-dialog-ok'),
+    speedDialogCancel: getElement('#speed-dialog-cancel'),
+    showSpeedDialog: getElement('#show-speed-dialog'),
 };
 
 export default controls;
