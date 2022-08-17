@@ -24,7 +24,7 @@ jobs:
             - name: Remove .gitignore
               run: rm .gitignore
             - name: Checkout another branch
-              run: git checkout pages-deploy
+              run: git checkout -b pages-deploy
             - name: Push
               uses: EndBug/add-and-commit@v9
               with:
