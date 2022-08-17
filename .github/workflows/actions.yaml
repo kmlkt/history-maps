@@ -23,11 +23,8 @@ jobs:
               run: gulp
             - name: Remove .gitignore
               run: rm .gitignore
-            - name: Checkout another branch
-              run: git checkout -b pages-deploy
-            - name: Push
-              uses: EndBug/add-and-commit@v9
+            - name: Deploy 🚀
+              uses: JamesIves/github-pages-deploy-action@v4
               with:
-                  new_branch: pages-deploy
-                  tag_push: '--force'
+                folder: docs # The folder the action should deploy.
                   
