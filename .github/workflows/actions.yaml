@@ -11,11 +11,6 @@ jobs:
               uses: actions/checkout@v3
             - name: Setup Node.js
               uses: actions/setup-node@v2.1.4
-            - name: Install packages
-              run: |
-                  npm install -g gulp
-                  npm install -g gulp-util
-                  npm install -g gulp-cli
             - name: Build the project using Gulp
               run: gulp
             - name: Remove .gitignore
