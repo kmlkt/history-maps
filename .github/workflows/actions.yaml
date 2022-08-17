@@ -16,6 +16,9 @@ jobs:
                   npm install gulp
                   npm install gulp-util
                   npm install gulp-cli
+                  npm install browserify
+                  npm install vinyl-source-stream
+                  npm install tsify
             - name: Build the project using Gulp
               run: gulp
             - name: Remove .gitignore
