@@ -1,0 +1,1 @@
+export const DATA_URL = 'https://karimkamaletdinov.github.io/history-maps-data';

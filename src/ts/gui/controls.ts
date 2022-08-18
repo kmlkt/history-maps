@@ -1,7 +1,10 @@
 import throwError from "../common/throw-error";
 
-function getElement(selector: string): Element {
-    return document.querySelector('#event-year') ?? throwError(`Gui element "${selector}" was not found"`);
+function getElement<T extends Element>(selector: string): T {
+    return document.querySelector<T>(selector) ?? throwError(`Gui element "${selector}" was not found"`);
+}
+function getElements<T extends Element>(selector: string): NodeListOf<T> {
+    return document.querySelectorAll<T>(selector);
 }
 
 const controls = {
@@ -13,8 +16,8 @@ const controls = {
     countryName: getElement('#country-name'),
     switcher: getElement('#switch'),
     aboutLink: getElement('#about-link'),
-    simpleView: getElement('#simple-view'),
-    simpleViewCanvas: getElement('#simple-view-canvas'),
+    canvas2d: getElement<HTMLCanvasElement>('#canvas-2d'),
+    canvas2dImage: getElement<HTMLImageElement>('#canvas-2d-image'),
     bottomInfo: getElement('#bottom-info'),
     closeBottomInfo: getElement('#bottom-info-close'),
 
@@ -33,6 +36,10 @@ const controls = {
     speedDialogOk: getElement('#speed-dialog-ok'),
     speedDialogCancel: getElement('#speed-dialog-cancel'),
     showSpeedDialog: getElement('#show-speed-dialog'),
+
+    eventNames(): NodeListOf<Element>{
+        return getElements('.event-name-copy');
+    }
 };
 
 export default controls;
