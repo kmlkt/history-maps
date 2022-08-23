@@ -15,9 +15,14 @@ gulp.task('copy-css', function() {
     .pipe(gulp.dest('dist/css'));
 });
 
+gulp.task('copy-shaders', function() {
+  return gulp.src('src/shaders/*.glsl')
+    .pipe(gulp.dest('dist/shaders'));
+});
+
 gulp.task(
   "default",
-  gulp.series(gulp.parallel("copy-html", "copy-css"), function () {
+  gulp.series(gulp.parallel("copy-html", "copy-css", "copy-shaders"), function () {
     return browserify({
       basedir: ".",
       debug: true,

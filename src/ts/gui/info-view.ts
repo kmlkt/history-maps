@@ -17,7 +17,9 @@ class InfoView implements IInfoView{
     removeEvent(event: HistoryEvent): void {
         let children: Element[] = Array.prototype.slice.call(controls.eventPanel.children);
         children.forEach(element => {
-            if(element.textContent == event.name){
+            if(element.textContent == event.name || 
+                (event.endYear != null && 
+                    element.textContent == `${event.name} (${this.stringifyYear(event.year)} - ${this.stringifyYear(event.endYear)})`)){
                 controls.eventPanel.removeChild(element);
             }
         });

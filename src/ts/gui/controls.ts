@@ -13,11 +13,14 @@ const controls = {
     beforeOurAge: getElement('#before-our-age'),
     eventName: getElement('#event-name'),
     eventPanel: getElement('#event-panel'),
-    countryName: getElement('#country-name'),
+    countryName: getElement<HTMLDivElement>('#country-name'),
     switcher: getElement('#switch'),
     aboutLink: getElement('#about-link'),
+
+    canvas3d: getElement<HTMLCanvasElement>('#canvas-3d'),
     canvas2d: getElement<HTMLCanvasElement>('#canvas-2d'),
     canvas2dImage: getElement<HTMLImageElement>('#canvas-2d-image'),
+
     bottomInfo: getElement('#bottom-info'),
     closeBottomInfo: getElement('#bottom-info-close'),
 

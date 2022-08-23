@@ -13,7 +13,7 @@
 <body>
 <canvas id="canvas-3d" hidden></canvas>
 <canvas id="canvas-2d" hidden></canvas>
-<img id="canvas-2d-image" hidden>
+<img id="canvas-2d-image" crossorigin="anonymous" hidden>
 <div class="event-panel" id="event-panel">
     <h1 class="event-year">
         <a id="event-year">Загрузка...</a>
@@ -56,6 +56,6 @@
     <button class="btn-dark dialog-cancel" id="speed-dialog-cancel">Отмена</button>
 </div>
 
-<script src="bundle.js"></script>
+<script src="bundle.js" type="module"></script>
 </body>
 </html>
