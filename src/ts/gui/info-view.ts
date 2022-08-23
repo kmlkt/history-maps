@@ -4,6 +4,7 @@ import controls from "./controls";
 
 class InfoView implements IInfoView{
     addEvent(event: HistoryEvent): void {
+        this.removeEvent(event);
         const element: Element = controls.eventName.cloneNode(true) as Element;
         if(event.endYear == null){
             element.textContent = event.name;

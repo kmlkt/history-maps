@@ -32,7 +32,7 @@ class View2d implements IView2d{
     }
 
     hide(): void {
-        throw new Error("Method not implemented.");
+        controls.canvas2d.setAttribute('hidden', '');
     }
 
     private onMouseMove(e: MouseEvent){

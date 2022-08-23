@@ -13,6 +13,7 @@ class DlView implements IDlView{
         controls.switcher.textContent = '2D';
         controls.beforeOurAge.classList.remove('event-year-dark');
         controls.ourAge.classList.remove('event-year-dark');
+        controls.eventNames().forEach(x => x.classList.remove('event-name-dark'));
     }
     setDark() {
         controls.eventYear.classList.add('event-year-dark');
@@ -25,6 +26,7 @@ class DlView implements IDlView{
         controls.switcher.textContent = '3D';
         controls.beforeOurAge.classList.add('event-year-dark');
         controls.ourAge.classList.add('event-year-dark');
+        controls.eventNames().forEach(x => x.classList.add('event-name-dark'));
     }
 }
 

@@ -1,8 +1,10 @@
+import ButtonsView from "./gui/buttons-view";
 import DlView from "./gui/dl-view";
 import InfoView from "./gui/info-view";
 import LabelView from "./gui/label-view";
 import View2d from "./gui/view-2d";
 import View3d from "./gui/view-3d";
+import IButtonsView from "./presenter/buttons-view";
 import IDlView from "./presenter/dl-view";
 import IInfoView from "./presenter/info-view";
 import ILabelView from "./presenter/label-view";
@@ -38,4 +40,8 @@ export function getDlView(): IDlView{
 
 export function getlabelView(): ILabelView{
     return new LabelView();
+}
+
+export function getButtonsView(): IButtonsView{
+    return new ButtonsView();
 }
