@@ -3,6 +3,7 @@ interface IButtonsView{
     onPauseClicked: () => void;
     onSpeedClicked: () => void;
     onChangeYearClicked: () => void;
+    setPauseButtonText(paused: boolean): void;
 }
 
 export default IButtonsView;

@@ -19,6 +19,7 @@ class Presenter{
     }
 
     async start(view3d: IView3d, view2d: IView2d, infoView: IInfoView, dlView: IDlView, labelView: ILabelView, buttonsView: IButtonsView){
+        let paused = false;
         view2d.onHover = labelView.showLabel;
         view2d.onNothingHovered = labelView.hideLabel;
         view3d.onHover = labelView.showLabel;
@@ -28,6 +29,10 @@ class Presenter{
             this.is3d = !this.is3d;
             await this.showView(view3d, view2d, dlView, infoView);
         };
+        buttonsView.onPauseClicked = () => {
+            paused = !paused;
+            buttonsView.setPauseButtonText(paused);
+        };
 
         await this.showView(view3d, view2d, dlView, infoView);
 
@@ -36,15 +41,19 @@ class Presenter{
         let year = events[0].year;
         let eventId = 0;
         while(next() != null){
-            infoView.setYear(year);
-            if(year == next().year){
-                await this.loadEvent(view3d, view2d, infoView, next());
-                eventId ++;
-            }else{
-                await this.sleep(7);
+            if(paused){
+                await this.sleep(100);
+            } else{
+                infoView.setYear(year);
+                if(year == next().year){
+                    await this.loadEvent(view3d, view2d, infoView, next());
+                    eventId ++;
+                }else{
+                    await this.sleep(7);
+                }
+                this.continiousEvents.filter(x => x.endYear == year).forEach(x => this.removeCe(x, infoView));
+                year++;
             }
-            this.continiousEvents.filter(x => x.endYear == year).forEach(x => this.removeCe(x, infoView));
-            year++;
         }
 
         function next(){

@@ -13,6 +13,14 @@ class ButtonsView implements IButtonsView{
         controls.showSpeedDialog.addEventListener('click', () => this.onSpeedClicked());
         controls.showYearDialog.addEventListener('click', () => this.onChangeYearClicked());
     }
+
+    setPauseButtonText(paused: boolean): void {
+        if(paused){
+            controls.pause.textContent = '=';
+        } else {
+            controls.pause.textContent = '►';
+        }
+    }
 }
 
 export default ButtonsView;
