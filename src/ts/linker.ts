@@ -1,3 +1,4 @@
+import BottomInfoView from "./gui/bottom-info-view";
 import ButtonsView from "./gui/buttons-view";
 import DlView from "./gui/dl-view";
 import InfoView from "./gui/info-view";
@@ -6,6 +7,7 @@ import SpeedDialogView from "./gui/speed-dialog-view";
 import View2d from "./gui/view-2d";
 import View3d from "./gui/view-3d";
 import YearDialogView from "./gui/year-dialog-view";
+import IBottomInfoView from "./presenter/bottom-info-view";
 import IButtonsView from "./presenter/buttons-view";
 import IDlView from "./presenter/dl-view";
 import IInfoView from "./presenter/info-view";
@@ -62,4 +64,8 @@ export function getYearDialogView(): IYearDialogView{
 
 export function getSpeedDialogView(): ISpeedDialogView{
     return new SpeedDialogView();
+}
+
+export function getBottomInfoView(): IBottomInfoView{
+    return new BottomInfoView();
 }
