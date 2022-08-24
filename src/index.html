@@ -11,9 +11,9 @@
     <title>Исторические карты</title>
 </head>
 <body>
-<canvas id="canvas-3d"></canvas>
-<canvas id="simple-view-canvas" hidden></canvas>
-<img id="simple-view" class="simple-view" alt="2D view" hidden>
+<canvas id="canvas-3d" hidden></canvas>
+<canvas id="canvas-2d" hidden></canvas>
+<img id="canvas-2d-image" crossorigin="anonymous" hidden>
 <div class="event-panel" id="event-panel">
     <h1 class="event-year">
         <a id="event-year">Загрузка...</a>
@@ -40,7 +40,7 @@
 </div>
 <div class="dialog" id="input-year-dialog" hidden>
     <h1 class="dialog-header">Выберите год</h1>
-    <input type="number" class="dialog-input" id="input-year">
+    <input type="number" class="dialog-input" id="year-dialog-input">
     <button class="btn-dark dialog-ok" id="input-year-dialog-ok">OK</button>
     <button class="btn-dark dialog-cancel" id="input-year-dialog-cancel">Отмена</button>
 </div>
@@ -56,6 +56,6 @@
     <button class="btn-dark dialog-cancel" id="speed-dialog-cancel">Отмена</button>
 </div>
 
-<script src="bundle.js"></script>
+<script src="bundle.js" type="module"></script>
 </body>
 </html>
