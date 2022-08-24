@@ -25,6 +25,14 @@ class InfoView implements IInfoView{
             }
         });
     }
+    clearAllEvents(): void {
+        let children: Element[] = Array.prototype.slice.call(controls.eventPanel.children);
+        children.forEach(element => {
+            if(element.classList.contains('event-name-copy')){
+                controls.eventPanel.removeChild(element);
+            }
+        });
+    }
 
     private stringifyYear(year: number, addG: boolean = false): string{
         if(year < 0){

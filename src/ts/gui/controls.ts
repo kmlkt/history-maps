@@ -25,7 +25,7 @@ const controls = {
     closeBottomInfo: getElement('#bottom-info-close'),
 
     yearDialog: getElement('#input-year-dialog'),
-    inputYear: getElement('#input-year'),
+    yearDialogInput: getElement<HTMLInputElement>('#year-dialog-input'),
     yearDialogOk: getElement('#input-year-dialog-ok'),
     yearDialogCancel: getElement('#input-year-dialog-cancel'),
     showYearDialog: getElement('#show-input-year-dialog'),
