@@ -16,14 +16,20 @@ import IView2d from "./presenter/view-2d";
 import IView3d from "./presenter/view-3d";
 import IYearDialogView from "./presenter/year-dialog-view";
 import IEventService from "./services/abstractions/event-service";
+import IStorageService from "./services/abstractions/storage-service";
 import EventService from "./services/implementations/event-service";
+import StorageService from "./services/implementations/storage-sevice";
 
 export function getEventService(): IEventService{
     return new EventService();
 }
 
+export function getStorageService(): IStorageService{
+    return new StorageService();
+}
+
 export function getPresenter(): Presenter {
-    return new Presenter(getEventService());
+    return new Presenter(getEventService(), getStorageService());
 };
 
 export function getView2d(): IView2d{

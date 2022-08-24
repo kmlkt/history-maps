@@ -1,5 +1,6 @@
 import HistoryEvent from "../models/event";
 import IEventService from "../services/abstractions/event-service";
+import IStorageService from "../services/abstractions/storage-service";
 import IButtonsView from "./buttons-view";
 import IDlView from "./dl-view";
 import IInfoView from "./info-view";
@@ -11,19 +12,22 @@ import IYearDialogView from "./year-dialog-view";
 
 class Presenter{
     private eventService: IEventService;
+    private storageService: IStorageService;
     private continiousEvents: HistoryEvent[]
-    private is3d: boolean = true;
+    private is3d: boolean;
     private currentEvent: HistoryEvent;
     
-    constructor(eventService: IEventService){
+    constructor(eventService: IEventService, storageService: IStorageService){
         this.eventService = eventService;
+        this.storageService = storageService;
         this.continiousEvents = [];
+        this.is3d = storageService.get3d() ?? true;
     }
 
     async start(view3d: IView3d, view2d: IView2d, infoView: IInfoView, dlView: IDlView, labelView: ILabelView, buttonsView: IButtonsView, yearDialogView: IYearDialogView,
         speedDialogView: ISpeedDialogView){
         const events = await this.eventService.getAllEvents();
-        let speed = 3;
+        let speed = this.storageService.getSpeed() ?? 3;
         let year = events[0].year;
         let eventId = 0;
 
@@ -35,6 +39,7 @@ class Presenter{
 
         buttonsView.onSwitchModeClicked = async () => {
             this.is3d = !this.is3d;
+            this.storageService.set3d(this.is3d);
             await this.showView(view3d, view2d, dlView, infoView, speed);
         };
         buttonsView.onPauseClicked = () => {
@@ -90,6 +95,7 @@ class Presenter{
 
         speedDialogView.onOkClicked = (s: number) => {
             speed = s;
+            this.storageService.setSpeed(speed);
             paused = false;
         };
         speedDialogView.onCancelClicked = () => {
