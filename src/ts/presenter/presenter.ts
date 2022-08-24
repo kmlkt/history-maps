@@ -1,6 +1,7 @@
 import HistoryEvent from "../models/event";
 import IEventService from "../services/abstractions/event-service";
 import IStorageService from "../services/abstractions/storage-service";
+import IBottomInfoView from "./bottom-info-view";
 import IButtonsView from "./buttons-view";
 import IDlView from "./dl-view";
 import IInfoView from "./info-view";
@@ -25,7 +26,12 @@ class Presenter{
     }
 
     async start(view3d: IView3d, view2d: IView2d, infoView: IInfoView, dlView: IDlView, labelView: ILabelView, buttonsView: IButtonsView, yearDialogView: IYearDialogView,
-        speedDialogView: ISpeedDialogView){
+        speedDialogView: ISpeedDialogView, bottomInfoView: IBottomInfoView){
+        bottomInfoView.init(this.storageService.getBottomInfoVisible() ?? true);
+        bottomInfoView.onClose = () => {
+            this.storageService.setBottomInfoVisible(false);
+        };
+        
         const events = await this.eventService.getAllEvents();
         let speed = this.storageService.getSpeed() ?? 3;
         let year = events[0].year;

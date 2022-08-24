@@ -15,6 +15,13 @@ class StorageService implements IStorageService{
     set3d(is3d: boolean): void {
         localStorage.setItem('is3d', is3d ? 'true' : 'false');
     }
+    getBottomInfoVisible(): boolean {
+        const val = localStorage.getItem('bottom-info-visible');
+        return val == null ? null : val == 'true';
+    }
+    setBottomInfoVisible(visible: boolean): void {
+        localStorage.setItem('bottom-info-visible', visible ? 'true' : 'false');
+    }
 }
 
 export default StorageService;
