@@ -1,23 +1,25 @@
-import Country from "../models/country";
 import HistoryEvent from "../models/event";
 import IView3d from "../presenter/view-3d";
 import controls from "./controls";
 import * as mat4 from '../libs/gl-matrix/mat4';
+import CountryVm from "../models/country-vm";
+import Color from "../models/color";
+import sleep from "../common/sleep";
 
 class View3d implements IView3d {
-    onHover: (x: number, y: number, country: Country) => void;
+    onHover: (x: number, y: number, country: CountryVm) => void;
     onNothingHovered: () => void;
     private gl: WebGLRenderingContext;
     private event: HistoryEvent;
-    private countries: Country[];
-    private positionBuffer: WebGLBuffer;
-    private colorBuffer: WebGLBuffer;
+    private countries: CountryVm[] = [];
+    private staticBuffers: BufferData[] = [];
+    private mutableBuffers: BufferData[] = [];
     private projectionMatrix: WebGLUniformLocation;
     private modelViewMatrix: WebGLUniformLocation;
     private shaderProgram: WebGLProgram;
     private vertexPosition: number;
-    private vertexColor: number;
-    private  glStarted: boolean = false;
+    private vertexColor: WebGLUniformLocation;
+    private glStarted: boolean = false;
     private previousX: number = undefined;
     private previousY: number = undefined;
     private rotationZ: number = 0;
@@ -39,16 +41,23 @@ class View3d implements IView3d {
         this.gl = controls.canvas3d.getContext('webgl');
     }
 
-    async setEvent(event: HistoryEvent, countries: Country[], points: Float64Array, colors: Float64Array): Promise<void> {
-        if(!this.glStarted){
+    async setBaseWorld(blank: CountryVm, water: CountryVm): Promise<void> {
+        if (!this.glStarted) {
             await this.initGl();
             await this.runGl();
             this.glStarted = true;
         }
 
+        var newBuffers: BufferData[] = [];
+        newBuffers.push(this.createBuffer(blank.points, blank.color));
+        newBuffers.push(this.createBuffer(water.points, water.color));
+        this.staticBuffers = newBuffers;
+    }
+
+    setEvent(event: HistoryEvent, countries: CountryVm[]): void {
         this.event = event;
         this.countries = countries;
-        await this.setGlData(points, colors);
+        this.updateGlData();
     }
 
     hide(): void {
@@ -56,7 +65,7 @@ class View3d implements IView3d {
         controls.canvas3d.setAttribute('hidden', '');
     }
 
-    async initGl(){
+    async initGl() {
         const shaderProgram = this.gl.createProgram();
         this.gl.attachShader(shaderProgram, await this.loadShader(this.gl.VERTEX_SHADER, './shaders/vertex.glsl'));
         this.gl.attachShader(shaderProgram, await this.loadShader(this.gl.FRAGMENT_SHADER, './shaders/fragment.glsl'));
@@ -64,24 +73,18 @@ class View3d implements IView3d {
         this.shaderProgram = shaderProgram;
         this.projectionMatrix = this.gl.getUniformLocation(this.shaderProgram, 'uProjectionMatrix');
         this.modelViewMatrix = this.gl.getUniformLocation(this.shaderProgram, 'uModelViewMatrix');
+        this.vertexColor = this.gl.getUniformLocation(this.shaderProgram, 'uVertexColor');
         this.vertexPosition = this.gl.getAttribLocation(this.shaderProgram, 'aVertexPosition');
-        this.vertexColor = this.gl.getAttribLocation(this.shaderProgram, 'aVertexColor');
-        this.gl.useProgram(shaderProgram);
     }
 
-    async setGlData(points: Float64Array, colors: Float64Array) {
-        await this.initBuffers(points, colors);
-
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.positionBuffer);
-        this.gl.vertexAttribPointer(this.vertexPosition, 3, this.gl.FLOAT, false, 0, 0);
-        this.gl.enableVertexAttribArray(this.vertexPosition);
-
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.colorBuffer);
-        this.gl.vertexAttribPointer(this.vertexColor, 3, this.gl.FLOAT, false, 0, 0);
-        this.gl.enableVertexAttribArray(this.vertexColor);
+    private updateGlData() {
+        console.log('started');
+        const newBuffers = this.countries.map(x => this.createBuffer(x.points, x.color));
+        this.mutableBuffers = newBuffers;
+        console.log('finished', this.mutableBuffers);
     }
 
-    async runGl(){
+    async runGl() {
         function render(t: View3d) {
             t.drawScene();
 
@@ -91,33 +94,33 @@ class View3d implements IView3d {
     }
 
     async drawScene() {
-        if(!this.hidden){
+        if (!this.hidden) {
             this.gl.clearColor(0.0, 0.0, 0.0, 1.0);
             this.gl.clearDepth(1.0);
             this.gl.enable(this.gl.DEPTH_TEST);
             this.gl.depthFunc(this.gl.LEQUAL);
             this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
-    
+
             const fieldOfView = 45 * Math.PI / 180;   // in radians
             const aspect = this.gl.canvas.clientWidth / this.gl.canvas.clientHeight;
             const zNear = 0.1;
             const zFar = 1850.0;
             const projectionMatrix = mat4.create();
             mat4.perspective(projectionMatrix, fieldOfView, aspect, zNear, zFar);
-    
+
             const modelViewMatrix = mat4.create();
             mat4.translate(modelViewMatrix, modelViewMatrix, [-0.0, 0.0, -1300.0]);
             mat4.rotate(modelViewMatrix, modelViewMatrix, -90 * Math.PI / 180, [0, 1, 0]);
             mat4.rotate(modelViewMatrix, modelViewMatrix, -90 * Math.PI / 180, [1, 0, 0]);
             mat4.rotate(modelViewMatrix, modelViewMatrix, this.rotationY, [0, 1, 0]);
             mat4.rotate(modelViewMatrix, modelViewMatrix, this.rotationZ, [0, 0, 1]);
-    
-            this.gl.uniformMatrix4fv(this.projectionMatrix, false, projectionMatrix);
-            this.gl.uniformMatrix4fv(this.modelViewMatrix, false, modelViewMatrix);
-    
-            this.gl.drawArrays(this.gl.TRIANGLES, 0, 1752840);
-    
-            if(this.mouseX != null && this.mouseY != null){
+
+
+
+            this.staticBuffers.forEach(d => this.drawBuffer(d, projectionMatrix, modelViewMatrix));
+            this.mutableBuffers.forEach(d => this.drawBuffer(d, projectionMatrix, modelViewMatrix));
+
+            if (this.mouseX != null && this.mouseY != null) {
                 const length = 4;
                 const pixel = new Uint8Array(length);
                 this.gl.readPixels(this.mouseX, controls.canvas3d.clientHeight - this.mouseY, 1, 1, this.gl.RGBA, this.gl.UNSIGNED_BYTE, pixel);
@@ -125,29 +128,38 @@ class View3d implements IView3d {
                 const g = pixel[1];
                 const b = pixel[2];
                 const country = this.countries.find(x => x.color.r === r && x.color.g === g && x.color.b === b);
-                if(country != undefined && country != null && country.name != 'water'){
+                if (country != undefined && country != null && country.name != 'water') {
                     this.onHover(this.mouseX, this.mouseY, country);
-                }else{
+                } else {
                     this.onNothingHovered();
                 }
-    
+
                 this.mouseX = null;
                 this.mouseY = null;
             }
         }
     }
 
-    private async initBuffers(points: Float64Array, colors: Float64Array) {
+    private async drawBuffer(data: BufferData, pm: Iterable<number>, mvm: Iterable<number>) {
+        this.gl.useProgram(this.shaderProgram);
+        this.gl.uniformMatrix4fv(this.projectionMatrix, false, pm);
+        this.gl.uniformMatrix4fv(this.modelViewMatrix, false, mvm);
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, data.buffer);
+        this.gl.vertexAttribPointer(this.vertexPosition, 3, this.gl.FLOAT, false, 0, 0);
+        this.gl.enableVertexAttribArray(this.vertexPosition);
+        const r = data.color.r / 255.0;
+        const g = data.color.g / 255.0;
+        const b = data.color.b / 255.0;
+        this.gl.uniform4f(this.vertexColor, r, g, b, 1.0);
+
+        this.gl.drawArrays(this.gl.TRIANGLES, 0, data.count);
+    }
+
+    private createBuffer(points: Float32Array, color: Color): BufferData {
         const positionBuffer = this.gl.createBuffer();
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, positionBuffer);
         this.gl.bufferData(this.gl.ARRAY_BUFFER, points, this.gl.STATIC_DRAW);
-
-        const colorBuffer = this.gl.createBuffer();
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, colorBuffer);
-        this.gl.bufferData(this.gl.ARRAY_BUFFER, colors, this.gl.STATIC_DRAW);
-
-        this.positionBuffer = positionBuffer;
-        this.colorBuffer = colorBuffer;
+        return new BufferData(positionBuffer, color, points.length / 3);
     }
 
     private async loadShader(type: number, path: string) {
@@ -162,7 +174,7 @@ class View3d implements IView3d {
     private mouseMove(e: MouseEvent) {
         const x = this.xToRelative(e.clientX);
         const y = this.yToRelative(e.clientY);
-        if(this.previousX != undefined && this.previousY != undefined && e.buttons != 0){
+        if (this.previousX != undefined && this.previousY != undefined && e.buttons != 0) {
             this.rotationZ += (x - this.previousX) / 150;
             this.rotationY += (y - this.previousY) / 150;
             this.previousX = x;
@@ -173,17 +185,29 @@ class View3d implements IView3d {
         this.mouseY = e.y;
     }
 
-    private mouseDown(e: MouseEvent){
+    private mouseDown(e: MouseEvent) {
         this.previousX = this.xToRelative(e.clientX);
         this.previousY = this.yToRelative(e.clientY);
     }
 
-    private xToRelative(x: number): number{
+    private xToRelative(x: number): number {
         return x - controls.canvas3d.getBoundingClientRect().x;
     }
 
-    private yToRelative(y: number): number{
+    private yToRelative(y: number): number {
         return y - controls.canvas3d.getBoundingClientRect().y;
+    }
+}
+
+class BufferData {
+    buffer: WebGLBuffer;
+    color: Color;
+    count: number;
+
+    constructor(buffer: WebGLBuffer, color: Color, count: number) {
+        this.buffer = buffer;
+        this.color = color;
+        this.count = count;
     }
 }
 

@@ -7,15 +7,20 @@ class EventService implements IEventService{
     async getEventBitmapUrl(event: HistoryEvent): Promise<string> {
         return `${DATA_URL}/${event.worldId}.bmp`;
     }
-    async getEventPoints(event: HistoryEvent): Promise<Float64Array> {
-        const response = await fetch(`${DATA_URL}/${event.worldId}/points.bin`);
+    async getCountryPoints(event: HistoryEvent, country: Country): Promise<Float32Array> {
+        const response = await fetch(`${DATA_URL}/${event.worldId}/${country.name}/points.bin`);
         const blob = await response.blob();
-        return new Float64Array(await blob.arrayBuffer());
+        return new Float32Array(await blob.arrayBuffer());
     }
-    async getEventColors(event: HistoryEvent): Promise<Float64Array> {
-        const response = await fetch(`${DATA_URL}/${event.worldId}/colors.bin`);
+    async getBaseWorldBlank(): Promise<Float32Array> {
+        const response = await fetch(`${DATA_URL}/baseworld/blank/points.bin`);
         const blob = await response.blob();
-        return new Float64Array(await blob.arrayBuffer());
+        return new Float32Array(await blob.arrayBuffer());
+    }
+    async getBaseWorldWater(): Promise<Float32Array> {
+        const response = await fetch(`${DATA_URL}/baseworld/water/points.bin`);
+        const blob = await response.blob();
+        return new Float32Array(await blob.arrayBuffer());
     }
     async getEventCountries(event: HistoryEvent): Promise<Country[]> {
         const response = await fetch(`${DATA_URL}/${event.worldId}.json`);

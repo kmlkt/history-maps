@@ -1,3 +1,6 @@
+import sleep from "../common/sleep";
+import Color from "../models/color";
+import CountryVm from "../models/country-vm";
 import HistoryEvent from "../models/event";
 import IEventService from "../services/abstractions/event-service";
 import IStorageService from "../services/abstractions/storage-service";
@@ -16,6 +19,7 @@ class Presenter{
     private storageService: IStorageService;
     private continiousEvents: HistoryEvent[]
     private is3d: boolean;
+    private inited3d: boolean;
     private currentEvent: HistoryEvent;
     
     constructor(eventService: IEventService, storageService: IStorageService){
@@ -81,9 +85,15 @@ class Presenter{
             }
             this.continiousEvents = events.filter(x => x.year <= y && x.endYear != null && x.endYear >= y);
             this.continiousEvents.forEach(x => infoView.addEvent(x));
+
             if(this.is3d){
-                view3d.setEvent(prevEvent,  await this.eventService.getEventCountries(prevEvent), 
-                    await this.eventService.getEventPoints(prevEvent), await this.eventService.getEventColors(prevEvent));
+                let viewModels: CountryVm[] = []
+                const countries = await this.eventService.getEventCountries(prevEvent);
+                countries.forEach(async country => {
+                    viewModels.push(new CountryVm(country.name, country.color, 
+                        await this.eventService.getCountryPoints(prevEvent, country)));
+                });
+                view3d.setEvent(prevEvent, viewModels);
             }else{
                 view2d.setEvent(prevEvent, await this.eventService.getEventCountries(prevEvent), await this.eventService.getEventBitmapUrl(prevEvent));
             }
@@ -113,14 +123,14 @@ class Presenter{
 
         while(true){
             if(paused || next() == null){
-                await this.sleep(100);
+                await sleep(100);
             } else{
                 infoView.setYear(year);
                 if(year == next().year){
                     await this.loadEvent(view3d, view2d, infoView, next(), speed);
                     eventId ++;
                 }else{
-                    await this.sleep(31 - 3 * speed);
+                    await sleep(31 - 3 * speed);
                 }
                 this.continiousEvents.filter(x => x.endYear < year).forEach(x => this.removeCe(x, infoView));
                 year++;
@@ -136,15 +146,25 @@ class Presenter{
     }
 
     private async loadEvent(view3d: IView3d, view2d: IView2d, infoView: IInfoView, event: HistoryEvent, speed: number) {
+        if(!this.inited3d && this.is3d){
+            await view3d.setBaseWorld(
+                new CountryVm('blank', new Color(255, 255, 255), await this.eventService.getBaseWorldBlank()),
+                new CountryVm('water', new Color(0, 162, 232), await this.eventService.getBaseWorldWater()))
+            this.inited3d = true;
+        }
         this.currentEvent = event;
         infoView.addEvent(event);
         if(this.is3d){
-            await view3d.setEvent(event,  await this.eventService.getEventCountries(event), 
-                await this.eventService.getEventPoints(event), await this.eventService.getEventColors(event));
+            const countries = await this.eventService.getEventCountries(event);
+            const viewModels = countries.filter(x => x.name != 'water').map(async country => {
+                return new CountryVm(country.name, country.color, 
+                    await this.eventService.getCountryPoints(event, country));
+            });
+            view3d.setEvent(event, await Promise.all(viewModels));
         }else{
             view2d.setEvent(event, await this.eventService.getEventCountries(event), await this.eventService.getEventBitmapUrl(event));
         }
-        await this.sleep(3500 - 300 * speed);       
+        await sleep(3500 - 300 * speed);       
         if(event.endYear == null){
             infoView.removeEvent(event);
         } else{
@@ -155,10 +175,6 @@ class Presenter{
     private removeCe(ce: HistoryEvent, infoView: IInfoView){
         infoView.removeEvent(ce);
         this.continiousEvents = this.continiousEvents.filter(x => x != ce);
-    }
-
-    private sleep(ms: number) {
-        return new Promise(r => setTimeout(r, ms));
     }
 
     private async showView(view3d: IView3d, view2d: IView2d, dlView: IDlView, infoView: IInfoView, speed: number){
