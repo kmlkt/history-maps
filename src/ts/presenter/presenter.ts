@@ -87,13 +87,12 @@ class Presenter{
             this.continiousEvents.forEach(x => infoView.addEvent(x));
 
             if(this.is3d){
-                let viewModels: CountryVm[] = []
                 const countries = await this.eventService.getEventCountries(prevEvent);
-                countries.forEach(async country => {
-                    viewModels.push(new CountryVm(country.name, country.color, 
-                        await this.eventService.getCountryPoints(prevEvent, country)));
+                const viewModels = countries.filter(x => x.name != 'water').map(async country => {
+                    return new CountryVm(country.name, country.color, 
+                        await this.eventService.getCountryPoints(prevEvent, country));
                 });
-                view3d.setEvent(prevEvent, viewModels);
+                view3d.setEvent(prevEvent, await Promise.all(viewModels));
             }else{
                 view2d.setEvent(prevEvent, await this.eventService.getEventCountries(prevEvent), await this.eventService.getEventBitmapUrl(prevEvent));
             }
