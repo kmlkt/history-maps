@@ -4,7 +4,6 @@ import controls from "./controls";
 import * as mat4 from '../libs/gl-matrix/mat4';
 import CountryVm from "../models/country-vm";
 import Color from "../models/color";
-import sleep from "../common/sleep";
 
 class View3d implements IView3d {
     onHover: (x: number, y: number, country: CountryVm) => void;
@@ -27,10 +26,14 @@ class View3d implements IView3d {
     private mouseX: number = null;
     private mouseY: number = null;
     private hidden: boolean = true;
+    private distance: number = 1300;
+    private minDistance = 800;
+    private maxDistance = 1500;
 
     constructor() {
         controls.canvas3d.addEventListener('mousedown', e => this.mouseDown(e));
         controls.canvas3d.addEventListener('mousemove', e => this.mouseMove(e));
+        controls.canvas3d.addEventListener('wheel', e => this.mouseWheel(e));
     }
 
     show(): void {
@@ -78,10 +81,8 @@ class View3d implements IView3d {
     }
 
     private updateGlData() {
-        console.log('started');
         const newBuffers = this.countries.map(x => this.createBuffer(x.points, x.color));
         this.mutableBuffers = newBuffers;
-        console.log('finished', this.mutableBuffers);
     }
 
     async runGl() {
@@ -109,7 +110,7 @@ class View3d implements IView3d {
             mat4.perspective(projectionMatrix, fieldOfView, aspect, zNear, zFar);
 
             const modelViewMatrix = mat4.create();
-            mat4.translate(modelViewMatrix, modelViewMatrix, [-0.0, 0.0, -1300.0]);
+            mat4.translate(modelViewMatrix, modelViewMatrix, [-0.0, 0.0, -this.distance]);
             mat4.rotate(modelViewMatrix, modelViewMatrix, -90 * Math.PI / 180, [0, 1, 0]);
             mat4.rotate(modelViewMatrix, modelViewMatrix, -90 * Math.PI / 180, [1, 0, 0]);
             mat4.rotate(modelViewMatrix, modelViewMatrix, this.rotationY, [0, 1, 0]);
@@ -188,6 +189,17 @@ class View3d implements IView3d {
     private mouseDown(e: MouseEvent) {
         this.previousX = this.xToRelative(e.clientX);
         this.previousY = this.yToRelative(e.clientY);
+    }
+    
+    private mouseWheel(e: WheelEvent): void {
+        const newDistance = this.distance + e.deltaY;
+        if(newDistance < this.minDistance){
+            this.distance = this.minDistance;
+        } else if(newDistance > this.maxDistance){
+            this.distance = this.maxDistance;
+        } else{
+            this.distance = newDistance;
+        }
     }
 
     private xToRelative(x: number): number {
