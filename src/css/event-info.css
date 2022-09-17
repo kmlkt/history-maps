@@ -5,13 +5,13 @@
 }
 
 .event-year {
-    font: italic 35px "Comic Sans MS";
+    font: italic 35px "Arial";
     color: white;
     margin: 10px;
 }
 
 .event-name {
-    font: italic 25px "Comic Sans MS";
+    font: italic 25px "Arial";
     color: white;
     margin: 10px;
 }
@@ -29,13 +29,13 @@
 }
 
 .event-year-dark {
-    font: italic 35px "Comic Sans MS";
+    font: italic 35px "Arial";
     color: black;
     margin: 10px;
 }
 
 .event-name-dark {
-    font: italic 25px "Comic Sans MS";
+    font: italic 25px "Arial";
     color: black;
     margin: 10px;
 }
