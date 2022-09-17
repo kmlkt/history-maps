@@ -125,12 +125,11 @@ class Presenter{
                 await sleep(100);
             } else{
                 infoView.setYear(year);
-                if(year == next().year){
+                while(year == next().year){
                     await this.loadEvent(view3d, view2d, infoView, next(), speed);
                     eventId ++;
-                }else{
-                    await sleep(31 - 3 * speed);
                 }
+                await sleep(31 - 3 * speed);
                 this.continiousEvents.filter(x => x.endYear < year).forEach(x => this.removeCe(x, infoView));
                 year++;
             }

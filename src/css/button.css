@@ -1,5 +1,5 @@
 .btn {
-    font: italic 25px "Comic Sans MS";
+    font: italic 25px "Arial";
     color: white;
     background-color: black;
     border: white 2px solid;
@@ -8,7 +8,7 @@
 }
 
 .btn:hover {
-    font: italic 25px "Comic Sans MS";
+    font: italic 25px "Arial";
     color: black;
     background-color: white;
     border: white 2px solid;
@@ -17,7 +17,7 @@
 }
 
 .btn:active {
-    font: italic 25px "Comic Sans MS";
+    font: italic 25px "Arial";
     color: black;
     background-color: white;
     border: black 2px solid;
@@ -26,7 +26,7 @@
 }
 
 .btn-dark {
-    font: italic 25px "Comic Sans MS";
+    font: italic 25px "Arial";
     color: black;
     background-color: white;
     border: black 2px solid;
@@ -35,7 +35,7 @@
 }
 
 .btn-dark:hover {
-    font: italic 25px "Comic Sans MS";
+    font: italic 25px "Arial";
     color: white;
     background-color: black;
     border: black 2px solid;
@@ -44,7 +44,7 @@
 }
 
 .btn-dark:active {
-    font: italic 25px "Comic Sans MS";
+    font: italic 25px "Arial";
     color: white;
     background-color: black;
     border: white 2px solid;

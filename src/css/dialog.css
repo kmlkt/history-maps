@@ -9,13 +9,16 @@
 
 .dialog-header {
     text-align: center;
-    font: italic 25px "Comic Sans MS";
+    font: italic 25px "Arial";
 }
 
 .dialog-input {
-    margin: 20px;
-    width: calc(100% - 30px);
-    font: italic 15px "Comic Sans MS";
+    margin: 20px 5px 20px 20px;
+    width: calc(100% - 150px);
+    font: italic 25px "Arial";
+}
+.dialog-input-btn {
+    margin: 20px 5px 20px 5px;
 }
 
 .dialog-ok {
@@ -42,5 +45,5 @@
 .dialog-value {
     margin: auto;
     text-align: center;
-    font: italic 35px "Comic Sans MS";
+    font: italic 35px "Arial";
 }
