@@ -1,1 +1,1 @@
-export const DATA_URL = 'https://karimkamaletdinov.github.io/history-maps-data';
+export const DATA_URL = 'https://kmlkt.github.io/history-maps-data';
